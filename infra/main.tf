@@ -83,6 +83,7 @@ resource "google_compute_managed_ssl_certificate" "cert" {
 # URL map for serving the site (used by HTTPS; HTTP redirects to HTTPS)
 # Includes rewrites so clean paths work.
 resource "google_compute_url_map" "https_map" {
+  provider        = google-beta
   name            = "frontend-url-map"
   default_service = google_compute_backend_bucket.frontend.id
 
