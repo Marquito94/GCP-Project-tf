@@ -14,18 +14,25 @@ resource "google_service_account_key" "deployer_key" {
   service_account_id = google_service_account.deployer.name
 }
 
-# --- Private GCS bucket for static website ---
+############################################
+# Private GCS bucket (static website origin)
+############################################
+
 resource "google_storage_bucket" "site" {
-  name                            = var.bucket_name
-  location                        = var.location
-  uniform_bucket_level_access     = true
-  force_destroy                   = true
+  name                        = var.bucket_name
+  location                    = var.location
+  uniform_bucket_level_access = true
+  force_destroy               = true
+
+  # Hard-block any future public grants
+  public_access_prevention = "enforced"
 
   website {
     main_page_suffix = var.main_page
     not_found_page   = var.error_page
   }
 
+  # (Optional) basic CORS for browser fetches if you call external APIs
   cors {
     origin          = ["*"]
     method          = ["GET", "HEAD", "OPTIONS"]
@@ -33,10 +40,15 @@ resource "google_storage_bucket" "site" {
     max_age_seconds = 3600
   }
 
+  lifecycle_rule {
+    action    { type = "Delete" }
+    condition { age  = 365 }
+  }
+
   depends_on = [google_project_service.enable_storage]
 }
 
-# CI can upload/manage objects (no bucket settings change needed)
+# CI can upload/manage objects (objects only; no bucket setting changes)
 resource "google_storage_bucket_iam_binding" "sa_object_admin" {
   bucket = google_storage_bucket.site.name
   role   = "roles/storage.objectAdmin"
@@ -45,15 +57,7 @@ resource "google_storage_bucket_iam_binding" "sa_object_admin" {
   ]
 }
 
-# (Optional) PUBLIC read — keep disabled for private bucket behind LB
-resource "google_storage_bucket_iam_binding" "public_read" {
-  count  = var.make_bucket_public ? 1 : 0
-  bucket = google_storage_bucket.site.name
-  role   = "roles/storage.objectViewer"
-  members = ["allUsers"]
-}
-
-# Allow only the LB’s Google-managed SA to read objects from the bucket
+# Allow only the Load Balancer's Google-managed SA to read objects
 resource "google_storage_bucket_iam_binding" "lb_object_viewer" {
   bucket = google_storage_bucket.site.name
   role   = "roles/storage.objectViewer"
@@ -62,7 +66,9 @@ resource "google_storage_bucket_iam_binding" "lb_object_viewer" {
   ]
 }
 
-# --- Global HTTPS Load Balancer (bucket as backend) ---
+############################################
+# Global HTTPS Load Balancer (bucket backend)
+############################################
 
 # Backend bucket (origin is the private GCS bucket)
 resource "google_compute_backend_bucket" "frontend" {
@@ -72,26 +78,26 @@ resource "google_compute_backend_bucket" "frontend" {
   depends_on  = [google_project_service.enable_compute]
 }
 
-# Managed SSL certificate for your domain
+# Managed SSL certificate for your domain (e.g., app.example.com)
 resource "google_compute_managed_ssl_certificate" "cert" {
   name = "frontend-ssl-cert"
   managed { domains = [var.domain] }
 }
 
-# URL map for HTTPS traffic to the backend bucket
+# URL map for HTTPS traffic → backend bucket
 resource "google_compute_url_map" "https_map" {
   name            = "frontend-url-map"
   default_service = google_compute_backend_bucket.frontend.id
 }
 
-# HTTPS proxy with cert
+# HTTPS proxy with the cert
 resource "google_compute_target_https_proxy" "https_proxy" {
   name             = "frontend-https-proxy"
   url_map          = google_compute_url_map.https_map.id
   ssl_certificates = [google_compute_managed_ssl_certificate.cert.id]
 }
 
-# HTTP -> HTTPS redirect
+# HTTP → HTTPS redirect
 resource "google_compute_url_map" "http_redirect_map" {
   name = "http-to-https-redirect-map"
   default_url_redirect {
@@ -125,4 +131,34 @@ resource "google_compute_global_forwarding_rule" "http_rule" {
   port_range            = "80"
   target                = google_compute_target_http_proxy.http_proxy.id
   load_balancing_scheme = "EXTERNAL"
+}
+
+############################################
+# Outputs (handy in a single file)
+############################################
+
+output "service_account_email" {
+  value       = google_service_account.deployer.email
+  description = "Deployer Service Account email"
+}
+
+# Sensitive base64 JSON – decode before putting into GitHub secret
+output "service_account_key_json" {
+  value     = google_service_account_key.deployer_key.private_key
+  sensitive = true
+}
+
+output "bucket_name" {
+  value       = google_storage_bucket.site.name
+  description = "Private website bucket name"
+}
+
+output "lb_ip" {
+  value       = google_compute_global_address.ip.address
+  description = "Create an A record for var.domain pointing to this IP"
+}
+
+output "https_url" {
+  value       = "https://${var.domain}"
+  description = "Site URL via HTTPS Load Balancer (after DNS + cert ACTIVE)"
 }
