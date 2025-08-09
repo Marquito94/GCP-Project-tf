@@ -14,6 +14,7 @@ permissions:
 env:
   TF_BUCKET: tf_state_1
   TF_PREFIX: state
+  BUCKET_NAME: web_app
 
 jobs:
   infra-and-site:
