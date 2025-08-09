@@ -35,10 +35,11 @@ jobs:
       # Terraform init & apply
       - name: Terraform Init
         working-directory: infra
-        run: terraform init \
-          -backend-config="bucket=${TF_BUCKET}" \
-          -backend-config="prefix=${TF_PREFIX}"
-
+        run: |
+          terraform init \
+            -backend-config="bucket=${TF_BUCKET}" \
+            -backend-config="prefix=${TF_PREFIX}"
+          
       - name: Terraform Apply
         working-directory: infra
         run: terraform apply -auto-approve \
