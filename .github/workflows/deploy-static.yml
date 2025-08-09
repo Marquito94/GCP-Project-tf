@@ -23,7 +23,7 @@ jobs:
       - name: Auth to Google Cloud (JSON key)
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}   # paste TF output (service_account_key_json) here
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v2
@@ -39,4 +39,5 @@ jobs:
           gsutil -m setmeta -h "Cache-Control:public,max-age=3600" "gs://${BUCKET}/**/*.{css,js,png,jpg,jpeg,svg,webp,ico,json}" || true
 
       - name: Show website URL
-        run: echo "Deployed to: http://storage.googleapis.com/${BUCKET}/index.html"
+        run: |
+          echo "Deployed to: http://storage.googleapis.com/${BUCKET}/index.html"
