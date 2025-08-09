@@ -92,18 +92,12 @@ resource "google_compute_target_https_proxy" "https_proxy" {
   ssl_certificates = [google_compute_managed_ssl_certificate.cert.id]
 }
 
-# HTTP → HTTPS redirect
-resource "google_compute_url_map" "http_redirect_map" {
-  name = "http-to-https-redirect-map"
-  default_url_redirect {
-    https_redirect = true
-    strip_query    = false
-  }
-}
-
-resource "google_compute_target_http_proxy" "http_proxy" {
-  name    = "frontend-http-redirect-proxy"
-  url_map = google_compute_url_map.http_redirect_map.id
+resource "google_compute_global_forwarding_rule" "http_rule" {
+  name                  = "frontend-http-fr"
+  ip_address            = google_compute_global_address.ip.address
+  port_range            = "80"
+  target                = google_compute_target_http_proxy.http_proxy.id
+  load_balancing_scheme = "EXTERNAL"
 }
 
 # One global static IP for the LB
@@ -117,14 +111,6 @@ resource "google_compute_global_forwarding_rule" "https_rule" {
   ip_address            = google_compute_global_address.ip.address
   port_range            = "443"
   target                = google_compute_target_https_proxy.https_proxy.id
-  load_balancing_scheme = "EXTERNAL"
-}
-
-resource "google_compute_global_forwarding_rule" "http_rule" {
-  name                  = "frontend-http-fr"
-  ip_address            = google_compute_global_address.ip.address
-  port_range            = "80"
-  target                = google_compute_target_http_proxy.http_proxy.id
   load_balancing_scheme = "EXTERNAL"
 }
 
