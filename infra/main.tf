@@ -44,6 +44,15 @@ resource "google_storage_bucket_iam_binding" "sa_object_admin" {
   ]
 }
 
+# SA can manage bucket settings (needed for gsutil web set)
+resource "google_storage_bucket_iam_binding" "sa_bucket_admin" {
+  bucket = google_storage_bucket.site.name
+  role   = "roles/storage.admin"
+  members = [
+    "serviceAccount:${google_service_account.deployer.email}"
+  ]
+}
+
 /* Optional public read for quick website access */
 resource "google_storage_bucket_iam_binding" "public_read" {
   count  = var.make_bucket_public ? 1 : 0
