@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       apply:
+        description: "Run terraform apply after plan?"
         type: boolean
         required: true
         default: false
@@ -55,7 +56,7 @@ jobs:
             
       - name: Terraform Apply
         working-directory: infra
-        if: ${{ inputs.apply == 'true' }}
+        if: ${{ github.event.inputs.apply == 'true' }}
         run: |
           terraform apply -auto-approve \
             -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
