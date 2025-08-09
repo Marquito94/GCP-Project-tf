@@ -39,9 +39,17 @@ jobs:
           terraform init \
             -backend-config="bucket=${TF_BUCKET}" \
             -backend-config="prefix=${TF_PREFIX}"
-          
+            
+      - name: Terraform Plan
+        working-directory: infra
+        run: |
+          terraform plan \
+            -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
+            -var="bucket_name=${BUCKET_NAME}"
+            
       - name: Terraform Apply
         working-directory: infra
-        run: terraform apply -auto-approve \
-          -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
-          -var="bucket_name=${BUCKET_NAME}"
+        run: |
+          terraform apply -auto-approve \
+            -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
+            -var="bucket_name=${BUCKET_NAME}"
