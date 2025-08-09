@@ -9,11 +9,6 @@ resource "google_service_account" "deployer" {
   depends_on   = [google_project_service.enable_iam]
 }
 
-# JSON key to use in GitHub Actions secret GCP_SA_KEY
-resource "google_service_account_key" "deployer_key" {
-  service_account_id = google_service_account.deployer.name
-}
-
 ############################################
 # Private GCS bucket (static website origin)
 ############################################
