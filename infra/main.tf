@@ -1,30 +1,25 @@
-############################################
-# Project info
-############################################
 data "google_project" "current" {
   project_id = var.project_id
 }
 
-############################################
-# Deployer Service Account (uploads only)
-############################################
+# --- Service Account for CI deploys (uploads only) ---
 resource "google_service_account" "deployer" {
   account_id   = var.deployer_sa_id
   display_name = "Static Website Deployer (GitHub Actions)"
-  # If you enable APIs in apis.tf, keep:
   depends_on   = [google_project_service.enable_iam]
 }
 
 ############################################
 # Private GCS bucket (static website origin)
 ############################################
+
 resource "google_storage_bucket" "site" {
   name                        = var.bucket_name
   location                    = var.location
   uniform_bucket_level_access = true
   force_destroy               = true
 
-  # Prevent any public grant
+  # Hard-block any future public grants
   public_access_prevention = "enforced"
 
   website {
@@ -32,7 +27,7 @@ resource "google_storage_bucket" "site" {
     not_found_page   = var.error_page
   }
 
-  # Optional CORS for frontend XHR/fetch
+  # (Optional) basic CORS for browser fetches if you call external APIs
   cors {
     origin          = ["*"]
     method          = ["GET", "HEAD", "OPTIONS"]
@@ -48,27 +43,29 @@ resource "google_storage_bucket" "site" {
   depends_on = [google_project_service.enable_storage]
 }
 
-# CI can upload/manage objects (no bucket-setting changes)
+# CI can upload/manage objects (objects only; no bucket setting changes)
 resource "google_storage_bucket_iam_binding" "sa_object_admin" {
-  bucket  = google_storage_bucket.site.name
-  role    = "roles/storage.objectAdmin"
-  members = ["serviceAccount:${google_service_account.deployer.email}"]
+  bucket = google_storage_bucket.site.name
+  role   = "roles/storage.objectAdmin"
+  members = [
+    "serviceAccount:${google_service_account.deployer.email}"
+  ]
 }
 
-# LB’s Google-managed SA can read objects from the bucket
+# Allow only the Load Balancer's Google-managed SA to read objects
 resource "google_storage_bucket_iam_binding" "lb_object_viewer" {
-  bucket  = google_storage_bucket.site.name
-  role    = "roles/storage.objectViewer"
+  bucket = google_storage_bucket.site.name
+  role   = "roles/storage.objectViewer"
   members = [
     "serviceAccount:service-${data.google_project.current.number}@compute-system.iam.gserviceaccount.com"
   ]
 }
 
 ############################################
-# Global Load Balancer (bucket backend)
+# Global HTTPS Load Balancer (bucket backend)
 ############################################
 
-# Origin: the private bucket (CDN optional)
+# Backend bucket (origin is the private GCS bucket)
 resource "google_compute_backend_bucket" "frontend" {
   name        = "frontend-backend-bucket"
   bucket_name = google_storage_bucket.site.name
@@ -76,32 +73,40 @@ resource "google_compute_backend_bucket" "frontend" {
   depends_on  = [google_project_service.enable_compute]
 }
 
-# Managed SSL cert for your domain (HTTPS frontend)
+# Managed SSL certificate for your domain (e.g., app.example.com)
 resource "google_compute_managed_ssl_certificate" "cert" {
   name = "frontend-ssl-cert"
   managed { domains = [var.domain] }
 }
 
-# One URL map used by BOTH HTTP and HTTPS (no redirect)
-resource "google_compute_url_map" "main_map" {
+# URL map for HTTPS traffic → backend bucket
+resource "google_compute_url_map" "https_map" {
   name            = "frontend-url-map"
   default_service = google_compute_backend_bucket.frontend.id
 }
 
-# HTTPS proxy (uses cert + URL map)
+# HTTPS proxy with the cert
 resource "google_compute_target_https_proxy" "https_proxy" {
   name             = "frontend-https-proxy"
-  url_map          = google_compute_url_map.main_map.id
+  url_map          = google_compute_url_map.https_map.id
   ssl_certificates = [google_compute_managed_ssl_certificate.cert.id]
 }
 
-# HTTP proxy (no redirect; uses same URL map)
-resource "google_compute_target_http_proxy" "http_proxy" {
-  name    = "frontend-http-proxy"
-  url_map = google_compute_url_map.main_map.id
+# HTTP → HTTPS redirect
+resource "google_compute_url_map" "http_redirect_map" {
+  name = "http-to-https-redirect-map"
+  default_url_redirect {
+    https_redirect = true
+    strip_query    = false
+  }
 }
 
-# One global static IP for both listeners
+resource "google_compute_target_http_proxy" "http_proxy" {
+  name    = "frontend-http-redirect-proxy"
+  url_map = google_compute_url_map.http_redirect_map.id
+}
+
+# One global static IP for the LB
 resource "google_compute_global_address" "ip" {
   name = "frontend-static-ip"
 }
