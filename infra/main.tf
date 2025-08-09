@@ -142,12 +142,6 @@ output "service_account_email" {
   description = "Deployer Service Account email"
 }
 
-# Sensitive base64 JSON – decode before putting into GitHub secret
-output "service_account_key_json" {
-  value     = google_service_account_key.deployer_key.private_key
-  sensitive = true
-}
-
 output "bucket_name" {
   value       = google_storage_bucket.site.name
   description = "Private website bucket name"
