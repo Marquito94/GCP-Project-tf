@@ -37,3 +37,8 @@ variable "deployer_sa_id" {
   type        = string
   default     = "web-deployer"
 }
+
+variable "domain" {
+  description = "FQDN for the load balancer (e.g., app.example.com)"
+  type        = string
+}
