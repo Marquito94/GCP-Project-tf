@@ -41,16 +41,17 @@ resource "google_apigee_organization" "org" {
 
   # Properties must be declared as repeated property {} blocks
   properties {
-    name  = "features.hybrid.enabled"
-    value = "true"
+    property {
+      name  = "features.hybrid.enabled"
+      value = "true"
+    }
+    property {
+      name  = "features.mart.connect.enabled"
+      value = "true"
+    }
   }
 
-  properties {
-    name  = "features.mart.connect.enabled"
-    value = "true"
-  }
-
-  depends_on = [google_service_networking_connection.apigee_vpc_peering]
+  depends_on = [google_service_networking_connection.vpc_connection]
 }
 
 output "apigee_org_id" {
