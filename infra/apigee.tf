@@ -1,10 +1,6 @@
 ########################
 # Network + peering setup
 ########################
-data "google_compute_network" "vpc" {
-  name = var.vpc_name
-}
-
 # Reserve INTERNAL range for Service Networking peering (Apigee requirement)
 resource "google_compute_global_address" "service_range" {
   name          = "apigee-servicenetworking-range"
