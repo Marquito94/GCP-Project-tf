@@ -6,7 +6,20 @@ resource "google_compute_global_address" "service_range" {
   name          = "apigee-servicenetworking-range"
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
-  prefix_length = 18
+  prefix_length = 22
+  network       = var.vpc_self_link
+
+  depends_on = [
+    google_project_service.enable_compute,
+    google_project_service.servicenetworking
+  ]
+}
+
+resource "google_compute_global_address" "service_range2" {
+  name          = "apigee-servicenetworking-range2"
+  address_type  = "INTERNAL"
+  purpose       = "VPC_PEERING"
+  prefix_length = 19
   network       = var.vpc_self_link
 
   depends_on = [
@@ -23,7 +36,8 @@ resource "google_service_networking_connection" "vpc_connection" {
 
   depends_on = [
     google_project_service.servicenetworking,
-    google_compute_global_address.service_range
+    google_compute_global_address.service_range,
+    google_compute_global_address.service_range2
   ]
 }
 
