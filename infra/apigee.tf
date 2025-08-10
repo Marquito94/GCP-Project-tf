@@ -7,7 +7,7 @@ resource "google_compute_global_address" "service_range" {
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
   prefix_length = 22
-  network       = data.google_compute_network.vpc.self_link
+  network       = var.vpc_self_link
 
   depends_on = [
     google_project_service.enable_compute,
@@ -37,7 +37,7 @@ resource "google_apigee_organization" "org" {
   display_name     = var.project_id
 
   # Connect Apigee runtime to your VPC
-  authorized_network = data.google_compute_network.vpc.self_link
+  authorized_network = var.vpc_self_link
 
   depends_on = [
     google_project_service.apigee,
