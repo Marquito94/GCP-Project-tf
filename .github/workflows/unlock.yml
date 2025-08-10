@@ -41,4 +41,31 @@ jobs:
             -backend-config="bucket=${TF_BUCKET}" \
             -backend-config="prefix=${TF_PREFIX}"
 
-      - run: terraform force-unlock -force 1754788455288748
+      - name: Terraform Unlock (auto-detect ID)
+        working-directory: infra
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Run a dummy plan to force Terraform to show lock info if locked
+          set +e
+          OUT=$(terraform plan -lock-timeout=10s -input=false -no-color 2>&1)
+          RC=$?
+          set -e
+
+          echo "$OUT"
+
+          if [[ $RC -ne 0 ]] && grep -q "Error acquiring the state lock" <<<"$OUT"; then
+            LOCK_ID=$(awk '/Lock Info:/{f=1} f && $1=="ID:"{print $2; exit}' <<<"$OUT" | tr -d '[:space:]')
+            if [[ -n "${LOCK_ID:-}" ]]; then
+              echo "🔓 Unlocking with ID: $LOCK_ID"
+              terraform force-unlock -force "$LOCK_ID"
+              echo "✅ Unlocked."
+            else
+              echo "❌ Could not parse lock ID from Terraform output."
+              exit 1
+            fi
+          else
+            echo "✅ No lock detected."
+          fi
+
