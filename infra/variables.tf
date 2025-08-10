@@ -73,3 +73,8 @@ variable "node_machine_type" {
   default     = "e2-standard-4"
 }
 
+variable "vpc_self_link" {
+  type        = string
+  description = "Self link of the VPC network to attach the private zone to"
+  default     = "projects/app-dev-468521/global/networks/default"
+}
