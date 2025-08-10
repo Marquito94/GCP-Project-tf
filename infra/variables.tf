@@ -165,3 +165,13 @@ variable "apigee_service_attachment_uri" {
   description = "Apigee instance serviceAttachment (projects/<TENANT>/regions/<REGION>/serviceAttachments/<NAME>)"
   default     = "projects/tc058119f8e4d3dfap-tp/regions/us-central1/serviceAttachments/apigee-us-central1-ea02"
 }
+
+variable "enable_cloud_armor" {
+  type        = bool
+  default     = false
+}
+
+variable "cloud_armor_name" {
+  type        = string
+  default     = "armor-apigee-api"
+}
