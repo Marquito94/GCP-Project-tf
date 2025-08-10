@@ -42,3 +42,26 @@ variable "domain" {
   description = "FQDN for the load balancer (e.g., app.example.com)"
   type        = string
 }
+
+variable "ar_repo_name" {
+  type        = string
+  description = "Artifact Registry repository name"
+  default     = "apps"
+}
+
+variable "cluster_name" {
+  type        = string
+  description = "GKE cluster name"
+  default     = "web-apis"
+}
+
+variable "node_machine_type" {
+  type        = string
+  description = "GKE node machine type"
+  default     = "e2-standard-4"
+}
+
+variable "deploy_sa_email" {
+  type        = string
+  description = "Existing deploy Service Account email (for pushing images)"
+}
