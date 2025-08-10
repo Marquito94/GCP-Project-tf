@@ -1,45 +1,23 @@
 ########################
 # Network + peering setup
 ########################
-# Reserve INTERNAL range for Service Networking peering (Apigee requirement)
-resource "google_compute_global_address" "service_range" {
-  name          = "apigee-servicenetworking-range"
-  address_type  = "INTERNAL"
-  purpose       = "VPC_PEERING"
-  prefix_length = 22
-  network       = var.vpc_self_link
 
-  depends_on = [
-    google_project_service.enable_compute,
-    google_project_service.servicenetworking
-  ]
-}
-
-resource "google_compute_global_address" "service_range2" {
+resource "google_compute_global_address" "service_rangev2" {
   name          = "apigee-servicenetworking-range2"
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
   prefix_length = 19
   network       = var.vpc_self_link
-
-  depends_on = [
-    google_project_service.enable_compute,
-    google_project_service.servicenetworking
-  ]
 }
 
-# Establish VPC peering with Service Networking
 resource "google_service_networking_connection" "vpc_connection" {
   network                 = data.google_compute_network.vpc.self_link
   service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [
-    google_compute_global_address.service_range2.name
-  ]
+  reserved_peering_ranges = [google_compute_global_address.service_rangev2.name]
 
   depends_on = [
     google_project_service.servicenetworking,
-    google_compute_global_address.service_range,
-    google_compute_global_address.service_range2
+    google_compute_global_address.service_rangev2
   ]
 }
 
