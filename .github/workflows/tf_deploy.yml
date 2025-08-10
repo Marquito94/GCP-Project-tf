@@ -63,3 +63,4 @@ jobs:
             -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
             -var="bucket_name=${BUCKET_NAME}" \
             -var="domain=${{ secrets.GCP_DOMAIN }}"
+            -var="producer_forwarding_rule=${{ secrets.FR_SELF_LINK }}"
