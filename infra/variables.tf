@@ -105,7 +105,7 @@ variable "apigee_env_name" {
 
 variable "apigee_cidr" {
   type        = string
-  default     = "10.90.0.0/22"
+  default     = "172.31.48.0/22"
 }
 
 variable "apigee_envgroup_name" {
