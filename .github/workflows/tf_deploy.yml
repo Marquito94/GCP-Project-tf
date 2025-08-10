@@ -50,6 +50,7 @@ jobs:
       - name: Terraform Plan
         working-directory: infra
         run: |
+          terraform state rm google_apigee_organization.org
           terraform plan \
             -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
             -var="bucket_name=${BUCKET_NAME}" \
