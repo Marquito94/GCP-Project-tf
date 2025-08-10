@@ -47,41 +47,33 @@ resource "google_apigee_organization" "org" {
 
 # Apigee X instance (runtime)
 resource "google_apigee_instance" "instance" {
-  provider  = google-beta
-  org_id    = google_apigee_organization.org.id
-  name      = "apigee-x-${var.region}"
-  location  = var.region
-  ip_range  = var.apigee_cidr  # /22 in your VPC
-
-  depends_on = [google_apigee_organization.org]
+  provider = google-beta
+  org_id   = data.google_apigee_organization.org.id
+  name     = "apigee-x-${var.region}"
+  location = var.region
+  ip_range = var.apigee_cidr   # unused /22
 }
 
 # Environment
 resource "google_apigee_environment" "env" {
   provider = google-beta
-  org_id   = google_apigee_organization.org.id
+  org_id   = data.google_apigee_organization.org.id
   name     = var.apigee_env_name
-
-  depends_on = [google_apigee_instance.instance]
 }
 
 # Attach env to instance
 resource "google_apigee_instance_attachment" "instance_env" {
-  provider   = google-beta
+  provider    = google-beta
   instance_id = google_apigee_instance.instance.id
   environment = google_apigee_environment.env.name
-
-  depends_on = [google_apigee_environment.env]
 }
 
-# Env Group with your public host (what the frontend will call)
+# Env Group (public host your frontend will call)
 resource "google_apigee_envgroup" "eg" {
   provider  = google-beta
-  org_id    = google_apigee_organization.org.id
-  name      = var.apigee_envgroup_name
-  hostnames = [var.apigee_host]
-
-  depends_on = [google_apigee_organization.org]
+  org_id    = data.google_apigee_organization.org.id
+  name      = var.apigee_envgroup_name   # e.g., "public-eg"
+  hostnames = [var.apigee_host]          # e.g., "api.pueba-web-dev.com"
 }
 
 # Map env → env group
