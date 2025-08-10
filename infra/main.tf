@@ -186,3 +186,9 @@ resource "google_compute_global_forwarding_rule" "http_rule" {
   target                = google_compute_target_http_proxy.http_proxy.id
   load_balancing_scheme = "EXTERNAL"
 }
+
+resource "google_storage_bucket_iam_member" "lb_object_viewer" {
+  bucket = google_storage_bucket.site.name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:service-${data.google_project.current.number}@compute-system.iam.gserviceaccount.com"
+}
