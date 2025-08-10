@@ -45,7 +45,10 @@ resource "google_apigee_organization" "org" {
     }
   }
 
-  depends_on = [google_service_networking_connection.vpc_connection]
+  depends_on = [
+    google_service_networking_connection.vpc_connection,
+    google_compute_global_address.service_rangev2
+  ]
 }
 
 output "apigee_org_id" {
@@ -59,18 +62,33 @@ resource "google_apigee_instance" "instance" {
   location = var.region
 
   ip_range = var.apigee_cidr
+
+  depends_on = [
+    google_service_networking_connection.vpc_connection,
+    google_apigee_organization.org
+  ]
 }
 
 resource "google_apigee_environment" "env" {
   provider = google-beta
   org_id   = google_apigee_organization.org.id
   name     = var.apigee_env_name
+
+  depends_on = [
+    google_service_networking_connection.vpc_connection,
+    google_apigee_organization.org
+  ]
 }
 
 resource "google_apigee_instance_attachment" "instance_env" {
   provider    = google-beta
   instance_id = google_apigee_instance.instance.id
   environment = google_apigee_environment.env.name
+
+  depends_on = [
+    google_service_networking_connection.vpc_connection,
+    google_apigee_organization.org
+  ]
 }
 
 resource "google_apigee_envgroup" "eg" {
@@ -78,10 +96,22 @@ resource "google_apigee_envgroup" "eg" {
   org_id    = google_apigee_organization.org.id
   name      = var.apigee_envgroup_name
   hostnames = [var.apigee_host]  # e.g. "api.pueba-web-dev.com"
+
+  depends_on = [
+    google_apigee_instance.instance,
+    google_apigee_environment.env,
+    google_apigee_instance_attachment.instance_env
+  ]
 }
 
 resource "google_apigee_envgroup_attachment" "eg_attach" {
   provider    = google-beta
   envgroup_id = google_apigee_envgroup.eg.id
   environment = google_apigee_environment.env.name
+
+  depends_on = [
+    google_apigee_instance.instance,
+    google_apigee_environment.env,
+    google_apigee_instance_attachment.instance_env
+  ]
 }
