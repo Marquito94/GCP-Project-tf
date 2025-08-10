@@ -6,7 +6,7 @@ resource "google_compute_global_address" "service_range" {
   name          = "apigee-servicenetworking-range"
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
-  prefix_length = 22
+  prefix_length = 18
   network       = var.vpc_self_link
 
   depends_on = [
