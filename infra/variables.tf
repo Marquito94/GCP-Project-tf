@@ -119,3 +119,9 @@ variable "apigee_host" {
   description = "Public hostname to serve APIs from (env group host)"
   default     = "apipueba-web-dev.com"
 }
+
+variable "proxy_only_cidr" {
+  type        = string
+  description = "UNUSED /23 or /24 for the ILB proxy-only subnet"
+  default     = "10.129.0.0/23"
+}
