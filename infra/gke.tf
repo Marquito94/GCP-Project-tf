@@ -7,7 +7,7 @@ resource "google_project_service" "container" {
 # Regional Standard cluster (uses var.region)
 resource "google_container_cluster" "gke" {
   name     = var.cluster_name
-  location = var.region
+  location = var.zone
 
   networking_mode = "VPC_NATIVE"
   ip_allocation_policy {}
@@ -26,7 +26,7 @@ resource "google_container_cluster" "gke" {
 resource "google_container_node_pool" "primary_pool" {
   name     = "primary-pool"
   cluster  = google_container_cluster.gke.name
-  location = var.region
+  location = var.zone
 
   initial_node_count = 3
 
