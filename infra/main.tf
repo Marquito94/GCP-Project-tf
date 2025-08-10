@@ -1,3 +1,10 @@
+locals {
+  lb_fetch_sas = [
+    "service-${data.google_project.current.number}@cloud-cdn-fill.iam.gserviceaccount.com",
+    "service-${data.google_project.current.number}@gcp-sa-backend-bucket.iam.gserviceaccount.com",
+  ]
+}
+
 ############################################
 # Project info
 ############################################
@@ -22,6 +29,7 @@ resource "google_storage_bucket" "site" {
   location                    = var.location
   uniform_bucket_level_access = true
   force_destroy               = true
+  public_access_prevention     = "enforced"
 
   website {
     main_page_suffix = var.main_page
@@ -189,4 +197,10 @@ resource "google_compute_global_forwarding_rule" "http_rule" {
   port_range            = "80"
   target                = google_compute_target_http_proxy.http_proxy.id
   load_balancing_scheme = "EXTERNAL"
+}
+
+resource "google_storage_bucket_iam_binding" "lb_object_viewer" {
+  bucket  = google_storage_bucket.site.name
+  role    = "roles/storage.objectViewer"
+  members = [for sa in local.lb_fetch_sas : "serviceAccount:${sa}"]
 }
