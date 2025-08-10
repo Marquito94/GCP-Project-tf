@@ -16,18 +16,18 @@ resource "google_compute_region_network_endpoint_group" "apigee_psc_neg" {
 }
 
 # (Optional) Cloud Armor policy
-resource "google_compute_security_policy" "api_policy" {
-  count = var.enable_cloud_armor ? 1 : 0
-  name  = var.cloud_armor_name
-
-  # Default allow (adjust to rules you want; you can flip to deny-by-default + allowlists)
-  rule {
-    priority = 2147483647
-    action   = "allow"
-    match { expr { expression = "true" } }
-    description = "Default allow (tighten with specific rules as needed)"
-  }
-}
+#resource "google_compute_security_policy" "api_policy" {
+#  count = var.enable_cloud_armor ? 1 : 0
+#  name  = var.cloud_armor_name
+#
+#  # Default allow (adjust to rules you want; you can flip to deny-by-default + allowlists)
+#  rule {
+#    priority = 2147483647
+#    action   = "allow"
+#    match { expr { expression = "true" } }
+#    description = "Default allow (tighten with specific rules as needed)"
+#  }
+#}
 
 # Backend service using the PSC NEG
 resource "google_compute_backend_service" "apigee_backend" {
@@ -50,7 +50,7 @@ resource "google_compute_backend_service" "apigee_backend" {
   }
 
   # Attach Cloud Armor to the backend service if enabled
-  security_policy = var.enable_cloud_armor ? google_compute_security_policy.api_policy[0].self_link : null
+  # security_policy = var.enable_cloud_armor ? google_compute_security_policy.api_policy[0].self_link : null
 }
 
 # All traffic for this LB goes to Apigee (single-host LB)
