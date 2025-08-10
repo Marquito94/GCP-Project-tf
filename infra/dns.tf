@@ -28,3 +28,19 @@ resource "google_dns_record_set" "backend_a" {
     "10.0.12.34",  # <-- replace with your ILB_IP
   ]
 }
+
+data "google_compute_network" "vpc" {
+  project = var.project_id
+  name    = var.vpc_name
+}
+
+resource "google_compute_subnetwork" "ilb_proxy_only" {
+  project       = var.project_id
+  name          = "ilb-proxy-${var.region}"
+  region        = var.region
+  network       = data.google_compute_network.vpc.self_link
+  ip_cidr_range = var.proxy_only_cidr
+
+  purpose = "REGIONAL_MANAGED_PROXY"
+  role    = "ACTIVE"
+}
