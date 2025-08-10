@@ -9,6 +9,12 @@ variable "location" {
   default     = "us-central1"
 }
 
+variable "region" {
+  description = "Region"
+  type        = string
+  default     = "us-central1"
+}
+
 variable "bucket_name" {
   description = "Single bucket name for the static website"
   type        = string
