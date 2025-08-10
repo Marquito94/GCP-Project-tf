@@ -3,7 +3,7 @@
 ########################
 
 resource "google_compute_global_address" "service_rangev2" {
-  name          = "apigee-servicenetworking-range2"
+  name          = "apigee-servicenetworking-rangev2"
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
   prefix_length = 19
