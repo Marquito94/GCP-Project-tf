@@ -17,7 +17,7 @@ resource "google_apigee_endpoint_attachment" "ea" {
   location            = var.region
   org_id              = google_apigee_organization.org.id
 
-  service_attachment  = google_compute_service_attachment.gke_ilb_attachment.name
+  service_attachment = "projects/${var.project_id}/regions/${var.region}/serviceAttachments/${google_compute_service_attachment.gke_ilb_attachment.name}"
   # Note: provider expects short name path: projects/<proj>/regions/<region>/serviceAttachments/<name>
   # If needed, replace above with: google_compute_service_attachment.gke_ilb_attachment.id
 
