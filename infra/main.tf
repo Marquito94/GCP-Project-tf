@@ -23,8 +23,6 @@ resource "google_storage_bucket" "site" {
   uniform_bucket_level_access = true
   force_destroy               = true
 
-  public_access_prevention = "inherited"
-
   website {
     main_page_suffix = var.main_page
     not_found_page   = var.error_page
