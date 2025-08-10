@@ -31,52 +31,55 @@ resource "google_service_networking_connection" "vpc_connection" {
 # Apigee Org / Instance
 ########################
 resource "google_apigee_organization" "org" {
-  provider         = google-beta
-  project_id       = var.project_id
-  analytics_region = var.region
-  display_name     = var.project_id
+  provider          = google-beta
+  project_id        = var.project_id
+  display_name      = var.project_id
+  analytics_region  = var.region
 
-  # Connect Apigee runtime to your VPC
-  authorized_network = var.vpc_self_link
+  # MUST be short form (not selfLink)
+  authorized_network = "projects/${var.project_id}/global/networks/${var.vpc_name}"
 
-  depends_on = [
-    google_project_service.apigee,
-    google_service_networking_connection.vpc_connection
-  ]
+  # Optional props (same as what you saw in your current org)
+  properties = {
+    "features.hybrid.enabled"       = "true"
+    "features.mart.connect.enabled" = "true"
+  }
+
+  depends_on = [google_service_networking_connection.apigee_vpc_peering]
 }
 
-# Apigee X instance (runtime)
+output "apigee_org_id" {
+  value = google_apigee_organization.org.id
+}
+
 resource "google_apigee_instance" "instance" {
   provider = google-beta
-  org_id   = data.google_apigee_organization.org.id
+  org_id   = google_apigee_organization.org.id
   name     = "apigee-x-${var.region}"
   location = var.region
-  ip_range = var.apigee_cidr   # unused /22
+
+  ip_range = var.apigee_cidr
 }
 
-# Environment
 resource "google_apigee_environment" "env" {
   provider = google-beta
-  org_id   = data.google_apigee_organization.org.id
+  org_id   = google_apigee_organization.org.id
   name     = var.apigee_env_name
 }
 
-# Attach env to instance
 resource "google_apigee_instance_attachment" "instance_env" {
   provider    = google-beta
   instance_id = google_apigee_instance.instance.id
   environment = google_apigee_environment.env.name
 }
 
-# Env Group (public host your frontend will call)
 resource "google_apigee_envgroup" "eg" {
   provider  = google-beta
-  org_id    = data.google_apigee_organization.org.id
-  name      = var.apigee_envgroup_name   # e.g., "public-eg"
-  hostnames = [var.apigee_host]          # e.g., "api.pueba-web-dev.com"
+  org_id    = google_apigee_organization.org.id
+  name      = var.apigee_envgroup_name
+  hostnames = [var.apigee_host]  # e.g. "api.pueba-web-dev.com"
 }
 
-# Map env → env group
 resource "google_apigee_envgroup_attachment" "eg_attach" {
   provider    = google-beta
   envgroup_id = google_apigee_envgroup.eg.id
