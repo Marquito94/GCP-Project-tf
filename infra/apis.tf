@@ -17,8 +17,3 @@ resource "google_project_service" "enable_storage" {
   project = var.project_id
   service = "storage.googleapis.com"
 }
-
-resource "google_project_service" "enable_cloudcdn" {
-  project = var.project_id
-  service = "cloudcdn.googleapis.com"
-}
