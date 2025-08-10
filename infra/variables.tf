@@ -126,12 +126,6 @@ variable "ilb_ip_name" {
   default = "api-ilbv2-ip"
 }
 
-variable "ilb_subnet_name" {
-  type        = string
-  description = "Subnet (in var.region) where the ILB IP will be allocated (e.g., default)"
-  default     = "default"
-}
-
 variable "proxy_only_cidr" {
   type        = string
   description = "UNUSED /23 or /24 for the ILB proxy-only subnet"
