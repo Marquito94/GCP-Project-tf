@@ -129,5 +129,5 @@ variable "ilb_ip_name" {
 variable "proxy_only_cidr" {
   type        = string
   description = "UNUSED /23 or /24 for the ILB proxy-only subnet"
-  default     = "10.129.0.0/23"
+  default     = "172.20.0.0/23"
 }
