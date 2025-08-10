@@ -1,14 +1,10 @@
-# PSC NEG so your LB can consume Apigee's ingress serviceAttachment
 resource "google_compute_network_endpoint_group" "apigee_ingress_psc_neg" {
+  provider              = google-beta
   name                  = "apigee-ingress-psc-neg"
-  region                = var.region
-  network               = var.vpc_self_link
   network_endpoint_type = "PRIVATE_SERVICE_CONNECT"
-
-  # Preferred: pull directly from your Apigee instance
-  psc_target_service = google_apigee_instance.instance.service_attachment
-  # If your provider version lacks this field, use a var instead:
-  # psc_target_service = var.apigee_service_attachment_uri
+  zone                  = var.zone
+  network               = var.vpc_self_link
+  psc_target_service    = var.apigee_service_attachment_uri
 }
 
 # Backend service that uses the NEG above
