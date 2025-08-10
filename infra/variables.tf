@@ -90,3 +90,9 @@ variable "private_zone_name" {
   description = "Terraform name for the private zone"
   default     = "private-internal-zone"
 }
+
+variable "vpc_name" {
+  type        = string
+  description = "Name of the VPC Apigee will peer with (e.g., default)"
+  default     = "default"
+}
