@@ -97,11 +97,6 @@ variable "vpc_name" {
   default     = "default"
 }
 
-variable "apigee_cidr" {
-  type        = string
-  description = "Unused /22 CIDR in your VPC for Apigee instance"
-}
-
 variable "apigee_env_name" {
   type        = string
   description = "Apigee environment name"
