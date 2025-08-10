@@ -1,14 +1,3 @@
-variable "project_id" {
-  type        = string
-  description = "GCP project ID"
-}
-
-variable "vpc_self_link" {
-  type        = string
-  description = "Self link of the VPC network to attach the private zone to"
-  default     = "projects/app-dev-468521/global/networks/default"
-}
-
 # Private suffix (must end with a dot)
 # Example: "internal.apipueba-web-dev.com."
 variable "private_dns_name" {
