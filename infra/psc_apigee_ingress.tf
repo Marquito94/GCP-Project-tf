@@ -43,21 +43,21 @@ resource "google_compute_backend_service" "apigee_backend" {
   }
 
   # Optional: attach Cloud Armor if you toggle it on
-  security_policy = var.enable_cloud_armor ? google_compute_security_policy.api_policy[0].self_link : null
+  # security_policy = var.enable_cloud_armor ? google_compute_security_policy.api_policy[0].self_link : null
 }
 
 # Optional Cloud Armor policy (toggle with var.enable_cloud_armor)
-resource "google_compute_security_policy" "api_policy" {
-  count = var.enable_cloud_armor ? 1 : 0
-  name  = var.cloud_armor_name
-
-  rule {
-    priority = 2147483647
-    action   = "allow"
-    match { expr { expression = "true" } }
-    description = "Default allow (tighten as needed)"
-  }
-}
+# resource "google_compute_security_policy" "api_policy" {
+# count = var.enable_cloud_armor ? 1 : 0
+#  name  = var.cloud_armor_name
+#
+#  rule {
+#    priority = 2147483647
+#    action   = "allow"
+#    match { expr { expression = "true" } }
+#    description = "Default allow (tighten as needed)"
+#  }
+#}
 
 # URL map: all traffic for this host -> Apigee backend
 resource "google_compute_url_map" "api_map" {
