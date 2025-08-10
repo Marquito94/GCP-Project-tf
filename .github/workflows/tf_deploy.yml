@@ -54,7 +54,6 @@ jobs:
             -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
             -var="bucket_name=${BUCKET_NAME}" \
             -var="domain=${{ secrets.GCP_DOMAIN }}"
-            -var="producer_forwarding_rule=https://www.googleapis.com/compute/v1/projects/app-dev-468521/regions/us-central1/forwardingRules/k8s2-fr-yrzx6l9k-apps-api-backend-ilb-ezq9xio1"
             
       - name: Terraform Apply
         working-directory: infra
@@ -64,4 +63,3 @@ jobs:
             -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
             -var="bucket_name=${BUCKET_NAME}" \
             -var="domain=${{ secrets.GCP_DOMAIN }}"
-            -var="producer_forwarding_rule=https://www.googleapis.com/compute/v1/projects/app-dev-468521/regions/us-central1/forwardingRules/k8s2-fr-yrzx6l9k-apps-api-backend-ilb-ezq9xio1"
