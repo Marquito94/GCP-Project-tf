@@ -17,3 +17,13 @@ resource "google_project_service" "enable_storage" {
   project = var.project_id
   service = "storage.googleapis.com"
 }
+
+resource "google_project_service" "servicenetworking" {
+  project = var.project_id
+  service = "servicenetworking.googleapis.com"
+}
+
+resource "google_project_service" "apigee" {
+  project = var.project_id
+  service = "apigee.googleapis.com"
+}
