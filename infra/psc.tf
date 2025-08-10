@@ -61,7 +61,7 @@ resource "google_apigee_target_server" "ts_backend_psc" {
   provider   = google-beta
   env_id     = google_apigee_environment.env.id
   name       = "ts-gke-ilb"
-  host       = google_apigee_endpoint_attachment.ea.hostnames[0]
+  host       = google_apigee_endpoint_attachment.ea.host[0]
   port       = 80
   protocol   = "HTTP"
   is_enabled = true
@@ -71,5 +71,5 @@ resource "google_apigee_target_server" "ts_backend_psc" {
 
 output "apigee_psc_hostname" {
   description = "Hostname Apigee uses over PSC to reach your ILB"
-  value       = google_apigee_endpoint_attachment.ea.hostnames[0]
+  value       = google_apigee_endpoint_attachment.ea.host[0]
 }
