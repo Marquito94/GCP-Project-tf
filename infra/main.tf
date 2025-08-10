@@ -83,47 +83,63 @@ resource "google_compute_managed_ssl_certificate" "cert" {
 # URL map for serving the site (used by HTTPS; HTTP redirects to HTTPS)
 # Includes rewrites so clean paths work.
 resource "google_compute_url_map" "https_map" {
-  provider        = google-beta
-  name            = "frontend-url-map"
-  default_service = google_compute_backend_bucket.frontend.id
+  name = "frontend-url-map"
 
-  # / -> /index.html
-  route_rules {
-    priority = 1
-    match_rules { full_path_match = "/" }
-    service = google_compute_backend_bucket.frontend.id
-    route_action {
-      url_rewrite { path_template_rewrite = "/index.html" }
-    }
+  # host rules
+  host_rule {
+    hosts        = ["*"]
+    path_matcher = "pm-main"
   }
 
-  # /solutions -> /solutions/index.html
-  route_rules {
-    priority = 2
-    match_rules { full_path_match = "/solutions" }
-    service = google_compute_backend_bucket.frontend.id
-    route_action {
-      url_rewrite { path_template_rewrite = "/solutions/index.html" }
-    }
-  }
+  # path matcher with path rules and redirects
+  path_matcher {
+    name = "pm-main"
 
-  # /delivery -> /delivery/index.html
-  route_rules {
-    priority = 3
-    match_rules { full_path_match = "/delivery" }
-    service = google_compute_backend_bucket.frontend.id
-    route_action {
-      url_rewrite { path_template_rewrite = "/delivery/index.html" }
-    }
-  }
+    # default goes to the backend bucket (normal files like /index.html etc.)
+    default_service = google_compute_backend_bucket.frontend.id
 
-  # /status -> /status/index.html
-  route_rules {
-    priority = 4
-    match_rules { full_path_match = "/status" }
-    service = google_compute_backend_bucket.frontend.id
-    route_action {
-      url_rewrite { path_template_rewrite = "/status/index.html" }
+    # "/" -> "/index.html"
+    path_rule {
+      paths = ["/"]
+      url_redirect {
+        https_redirect          = false
+        path_redirect           = "/index.html"
+        strip_query             = false
+        redirect_response_code  = "MOVED_PERMANENTLY_DEFAULT"
+      }
+    }
+
+    # "/solutions" -> "/solutions/index.html"
+    path_rule {
+      paths = ["/solutions"]
+      url_redirect {
+        https_redirect          = false
+        path_redirect           = "/solutions/index.html"
+        strip_query             = false
+        redirect_response_code  = "MOVED_PERMANENTLY_DEFAULT"
+      }
+    }
+
+    # "/delivery" -> "/delivery/index.html"
+    path_rule {
+      paths = ["/delivery"]
+      url_redirect {
+        https_redirect          = false
+        path_redirect           = "/delivery/index.html"
+        strip_query             = false
+        redirect_response_code  = "MOVED_PERMANENTLY_DEFAULT"
+      }
+    }
+
+    # "/status" -> "/status/index.html"
+    path_rule {
+      paths = ["/status"]
+      url_redirect {
+        https_redirect          = false
+        path_redirect           = "/status/index.html"
+        strip_query             = false
+        redirect_response_code  = "MOVED_PERMANENTLY_DEFAULT"
+      }
     }
   }
 }
