@@ -23,7 +23,7 @@ resource "google_storage_bucket" "site" {
   uniform_bucket_level_access = true
   force_destroy               = true
 
-  public_access_prevention = "enforced"
+  public_access_prevention = "inherited"
 
   website {
     main_page_suffix = var.main_page
@@ -46,6 +46,12 @@ resource "google_storage_bucket" "site" {
   depends_on = [google_project_service.enable_storage]
 }
 
+# Public read for everyone on the internet
+resource "google_storage_bucket_iam_binding" "public_read" {
+  bucket  = google_storage_bucket.site.name
+  role    = "roles/storage.objectViewer"
+  members = ["allUsers"]
+}
 # CI can upload/manage objects (objects only)
 resource "google_storage_bucket_iam_binding" "sa_object_admin" {
   bucket  = google_storage_bucket.site.name
@@ -185,24 +191,4 @@ resource "google_compute_global_forwarding_rule" "http_rule" {
   port_range            = "80"
   target                = google_compute_target_http_proxy.http_proxy.id
   load_balancing_scheme = "EXTERNAL"
-}
-
-# Modern role (you already added this via binding or member; keep it)
-resource "google_storage_bucket_iam_member" "lb_object_viewer_v2" {
-  bucket = google_storage_bucket.site.name
-  role   = "roles/storage.objectViewer"
-  member = "serviceAccount:service-${data.google_project.current.number}@compute-system.iam.gserviceaccount.com"
-}
-
-# Legacy roles (add both)
-resource "google_storage_bucket_iam_member" "lb_legacy_object_reader" {
-  bucket = google_storage_bucket.site.name
-  role   = "roles/storage.legacyObjectReader"
-  member = "serviceAccount:service-${data.google_project.current.number}@compute-system.iam.gserviceaccount.com"
-}
-
-resource "google_storage_bucket_iam_member" "lb_legacy_bucket_reader" {
-  bucket = google_storage_bucket.site.name
-  role   = "roles/storage.legacyBucketReader"
-  member = "serviceAccount:service-${data.google_project.current.number}@compute-system.iam.gserviceaccount.com"
 }
