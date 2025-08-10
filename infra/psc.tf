@@ -23,6 +23,7 @@ resource "google_apigee_endpoint_attachment" "ea" {
 
   depends_on = [
     google_apigee_envgroup.eg,
+    google_compute_service_attachment.gke_ilb_attachment,
     google_apigee_instance_attachment.instance_env
   ]
 }
@@ -36,24 +37,28 @@ output "service_attachment_uri" {
 #############################################
 resource "google_compute_service_attachment" "gke_ilb_attachment" {
   name        = "gke-ilb-psc-${var.region}"
-  region      = var.region
   project     = var.project_id
+  region      = var.region
 
-  # INTERNAL_MANAGED ILB (your GKE Ingress) forwarding rule selfLink
+  # Your INTERNAL_MANAGED ILB Forwarding Rule selfLink from GKE Ingress
   target_service        = var.producer_forwarding_rule
 
-  # REQUIRED in current provider versions
-  enable_proxy_protocol = false  # true only if your consumer expects PROXY v2 headers
+  # Unless you specifically need PROXY protocol, leave false
+  enable_proxy_protocol = false
 
-  connection_preference = "ACCEPT_MANUAL"
-  nat_subnets           = [google_compute_subnetwork.psc_nat_subnet.self_link]
+  # 👇 Auto-approve consumers (Apigee)
+  connection_preference = "ACCEPT_AUTOMATIC"
 
-  consumer_accept_lists {
-    project_id_or_num = var.project_id
-    connection_limit  = 20
-  }
+  nat_subnets = [google_compute_subnetwork.psc_nat_subnet.self_link]
+
+  # IMPORTANT: Remove any consumer_accept_lists {} blocks if you had them
 
   depends_on = [google_compute_subnetwork.psc_nat_subnet]
+}
+
+resource "time_sleep" "wait_for_ea_host" {
+  depends_on      = [google_apigee_endpoint_attachment.ea]
+  create_duration = "60s"
 }
 
 # TargetServer in Apigee that points to the PSC hostname
@@ -66,7 +71,10 @@ resource "google_apigee_target_server" "ts_backend_psc" {
   protocol   = "HTTP"
   is_enabled = true
 
-  depends_on = [google_apigee_endpoint_attachment.ea]
+  depends_on = [
+    google_apigee_endpoint_attachment.ea,
+    time_sleep.wait_for_ea_host
+  ]
 }
 
 output "apigee_psc_hostname" {
