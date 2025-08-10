@@ -11,25 +11,20 @@ resource "google_compute_subnetwork" "psc_nat_subnet" {
   purpose       = "PRIVATE_SERVICE_CONNECT"
 }
 
-# Publish your ILB via Service Attachment
-resource "google_compute_service_attachment" "gke_ilb_attachment" {
-  name        = "gke-ilb-psc-${var.region}"
-  region      = var.region
-  project     = var.project_id
+resource "google_apigee_endpoint_attachment" "ea" {
+  provider            = google-beta
+  endpoint_attachment_id = "ea-gke-ilb"
+  location            = var.region
+  org_id              = google_apigee_organization.org.id
 
-  # For INTERNAL_MANAGED (L7) ILB, target_service must be the Forwarding Rule selfLink
-  target_service        = var.producer_forwarding_rule
+  service_attachment  = google_compute_service_attachment.gke_ilb_attachment.name
+  # Note: provider expects short name path: projects/<proj>/regions/<region>/serviceAttachments/<name>
+  # If needed, replace above with: google_compute_service_attachment.gke_ilb_attachment.id
 
-  connection_preference = "ACCEPT_MANUAL"
-  nat_subnets           = [google_compute_subnetwork.psc_nat_subnet.self_link]
-
-  # Allow your (same) project as consumer; add others if needed
-  consumer_accept_lists {
-    project_id_or_num = var.project_id
-    connection_limit  = 20
-  }
-
-  depends_on = [google_compute_subnetwork.psc_nat_subnet]
+  depends_on = [
+    google_apigee_envgroup.eg,
+    google_apigee_instance_attachment.instance_env
+  ]
 }
 
 output "service_attachment_uri" {
