@@ -39,13 +39,18 @@ resource "google_apigee_organization" "org" {
   # MUST be short form (not selfLink)
   authorized_network = "projects/${var.project_id}/global/networks/${var.vpc_name}"
 
-  # Optional props (same as what you saw in your current org)
-  properties = {
-    "features.hybrid.enabled"       = "true"
-    "features.mart.connect.enabled" = "true"
+  # Properties must be declared as repeated property {} blocks
+  properties {
+    name  = "features.hybrid.enabled"
+    value = "true"
   }
 
-  depends_on = [google_service_networking_connection.vpc_connection]
+  properties {
+    name  = "features.mart.connect.enabled"
+    value = "true"
+  }
+
+  depends_on = [google_service_networking_connection.apigee_vpc_peering]
 }
 
 output "apigee_org_id" {
