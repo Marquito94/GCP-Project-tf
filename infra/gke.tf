@@ -42,6 +42,8 @@ resource "google_container_node_pool" "primary_pool" {
 
   node_config {
     machine_type   = var.node_machine_type          # default "e2-standard-4"
+    disk_type     = "pd-standard"
+    disk_size_gb  = 25  
     service_account = data.google_compute_default_service_account.default.email
 
     oauth_scopes = [
