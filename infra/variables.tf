@@ -96,3 +96,26 @@ variable "vpc_name" {
   description = "Name of the VPC Apigee will peer with (e.g., default)"
   default     = "default"
 }
+
+variable "apigee_cidr" {
+  type        = string
+  description = "Unused /22 CIDR in your VPC for Apigee instance"
+}
+
+variable "apigee_env_name" {
+  type        = string
+  description = "Apigee environment name"
+  default     = "dev"
+}
+
+variable "apigee_envgroup_name" {
+  type        = string
+  description = "Apigee environment group name"
+  default     = "public-eg"
+}
+
+variable "apigee_host" {
+  type        = string
+  description = "Public hostname to serve APIs from (env group host)"
+  default     = "apipueba-web-dev.com"
+}
