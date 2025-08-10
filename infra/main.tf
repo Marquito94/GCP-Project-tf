@@ -22,7 +22,6 @@ resource "google_storage_bucket" "site" {
   location                    = var.location
   uniform_bucket_level_access = true
   force_destroy               = true
-  public_access_prevention = "inherited"
 
   website {
     main_page_suffix = var.main_page
