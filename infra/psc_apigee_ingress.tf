@@ -1,3 +1,9 @@
+data "google_compute_subnetwork" "consumer_subnet" {
+  project = var.project_id
+  region  = var.region
+  name    = var.consumer_subnet_name
+}
+
 # Use google-beta here if your google provider is older
 resource "google_compute_region_network_endpoint_group" "apigee_ingress_psc_neg" {
   provider              = google-beta
