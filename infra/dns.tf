@@ -1,17 +1,3 @@
-# Private suffix (must end with a dot)
-# Example: "internal.apipueba-web-dev.com."
-variable "private_dns_name" {
-  type        = string
-  description = "Private zone DNS name (with trailing dot)"
-  default     = "internal.apipueba-web-dev.com."
-}
-
-variable "private_zone_name" {
-  type        = string
-  description = "Terraform name for the private zone"
-  default     = "private-internal-zone"
-}
-
 resource "google_dns_managed_zone" "private_zone" {
   project     = var.project_id
   name        = var.private_zone_name
@@ -28,4 +14,17 @@ resource "google_dns_managed_zone" "private_zone" {
 
 output "private_zone_dns_name" {
   value = google_dns_managed_zone.private_zone.dns_name
+}
+
+resource "google_dns_record_set" "backend_a" {
+  project      = var.project_id
+  managed_zone = google_dns_managed_zone.private_zone.name
+
+  name = "backend.${google_dns_managed_zone.private_zone.dns_name}"  # e.g. backend.internal.api....com.
+
+  type = "A"
+  ttl  = 300
+  rrdatas = [
+    "10.0.12.34",  # <-- replace with your ILB_IP
+  ]
 }
