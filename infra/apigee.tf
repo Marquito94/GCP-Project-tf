@@ -80,6 +80,8 @@ resource "google_apigee_envgroup" "eg" {
   org_id    = google_apigee_organization.org.id
   name      = var.apigee_envgroup_name
   hostnames = [var.apigee_host]
+
+  depends_on = [google_apigee_organization.org]
 }
 
 # Map env → env group
