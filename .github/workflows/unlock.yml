@@ -1,0 +1,44 @@
+name: Deploy Infra
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  TF_BUCKET: tf_state_1
+  TF_PREFIX: state
+  BUCKET_NAME: web_app_marco_ex
+
+jobs:
+  infra-and-site:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Authenticate for Terraform + gcloud
+      - name: Auth to Google Cloud (Terraform)
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_TF_KEY }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.5
+
+      # Terraform init & apply
+      - name: Terraform Init
+        working-directory: infra
+        run: |
+          terraform init \
+            -backend-config="bucket=${TF_BUCKET}" \
+            -backend-config="prefix=${TF_PREFIX}"
+
+      - run: terraform force-unlock -force 1754788455288748
