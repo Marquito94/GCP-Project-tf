@@ -54,7 +54,7 @@ jobs:
             -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
             -var="bucket_name=${BUCKET_NAME}" \
             -var="domain=${{ secrets.GCP_DOMAIN }}" \
-            --auto-approve
+            -auto-approve
             
       - name: Terraform Apply
         working-directory: infra
@@ -64,4 +64,4 @@ jobs:
             -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
             -var="bucket_name=${BUCKET_NAME}" \
             -var="domain=${{ secrets.GCP_DOMAIN }}" \
-            --auto-approve
+            -auto-approve
