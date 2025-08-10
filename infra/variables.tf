@@ -78,3 +78,15 @@ variable "vpc_self_link" {
   description = "Self link of the VPC network to attach the private zone to"
   default     = "projects/app-dev-468521/global/networks/default"
 }
+
+variable "private_dns_name" {
+  type        = string
+  description = "Private zone DNS name (with trailing dot)"
+  default     = "internal.apipueba-web-dev.com."
+}
+
+variable "private_zone_name" {
+  type        = string
+  description = "Terraform name for the private zone"
+  default     = "private-internal-zone"
+}
