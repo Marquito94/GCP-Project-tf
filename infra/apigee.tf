@@ -10,7 +10,7 @@ resource "google_compute_global_address" "service_range" {
   network       = data.google_compute_network.vpc.self_link
 
   depends_on = [
-    google_project_service.compute,
+    google_project_service.enable_compute,
     google_project_service.servicenetworking
   ]
 }
