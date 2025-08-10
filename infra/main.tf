@@ -187,8 +187,22 @@ resource "google_compute_global_forwarding_rule" "http_rule" {
   load_balancing_scheme = "EXTERNAL"
 }
 
-resource "google_storage_bucket_iam_member" "lb_object_viewer" {
+# Modern role (you already added this via binding or member; keep it)
+resource "google_storage_bucket_iam_member" "lb_object_viewer_v2" {
   bucket = google_storage_bucket.site.name
   role   = "roles/storage.objectViewer"
+  member = "serviceAccount:service-${data.google_project.current.number}@compute-system.iam.gserviceaccount.com"
+}
+
+# Legacy roles (add both)
+resource "google_storage_bucket_iam_member" "lb_legacy_object_reader" {
+  bucket = google_storage_bucket.site.name
+  role   = "roles/storage.legacyObjectReader"
+  member = "serviceAccount:service-${data.google_project.current.number}@compute-system.iam.gserviceaccount.com"
+}
+
+resource "google_storage_bucket_iam_member" "lb_legacy_bucket_reader" {
+  bucket = google_storage_bucket.site.name
+  role   = "roles/storage.legacyBucketReader"
   member = "serviceAccount:service-${data.google_project.current.number}@compute-system.iam.gserviceaccount.com"
 }
