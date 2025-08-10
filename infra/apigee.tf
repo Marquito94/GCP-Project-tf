@@ -45,7 +45,7 @@ resource "google_apigee_organization" "org" {
     "features.mart.connect.enabled" = "true"
   }
 
-  depends_on = [google_service_networking_connection.apigee_vpc_peering]
+  depends_on = [google_service_networking_connection.vpc_connection]
 }
 
 output "apigee_org_id" {
