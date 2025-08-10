@@ -134,6 +134,7 @@ variable "psc_nat_subnet_cidr" {
 variable "producer_forwarding_rule" {
   type        = string
   description = "Self link of the INTERNAL_MANAGED Forwarding Rule created by GKE internal Ingress"
+  default     = "https://www.googleapis.com/compute/v1/projects/app-dev-468521/regions/us-central1/forwardingRules/k8s2-fr-yrzx6l9k-apps-api-backend-ilb-ezq9xio1"
 }
 
 variable "ilb_subnet_name" {
