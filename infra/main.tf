@@ -51,20 +51,12 @@ resource "google_storage_bucket_iam_binding" "public_read" {
   role    = "roles/storage.objectViewer"
   members = ["allUsers"]
 }
+
 # CI can upload/manage objects (objects only)
 resource "google_storage_bucket_iam_binding" "sa_object_admin" {
   bucket  = google_storage_bucket.site.name
   role    = "roles/storage.objectAdmin"
   members = ["serviceAccount:${google_service_account.deployer.email}"]
-}
-
-# LB’s Google-managed SA can read objects
-resource "google_storage_bucket_iam_binding" "lb_object_viewer" {
-  bucket  = google_storage_bucket.site.name
-  role    = "roles/storage.objectViewer"
-  members = [
-    "serviceAccount:service-${data.google_project.current.number}@compute-system.iam.gserviceaccount.com"
-  ]
 }
 
 resource "google_storage_bucket_iam_member" "deployer_bucket_admin" {
