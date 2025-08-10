@@ -67,6 +67,12 @@ resource "google_storage_bucket_iam_binding" "lb_object_viewer" {
   ]
 }
 
+resource "google_storage_bucket_iam_member" "deployer_bucket_admin" {
+  bucket = google_storage_bucket.site.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${google_service_account.deployer.email}"
+}
+
 ############################################
 # Global Load Balancer (bucket backend)
 ############################################
