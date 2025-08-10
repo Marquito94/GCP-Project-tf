@@ -37,7 +37,7 @@ resource "google_apigee_organization" "org" {
   display_name     = var.project_id
 
   # Connect Apigee runtime to your VPC
-  authorized_network = data.google_compute_network.vpc.self_link
+  authorized_network = var.vpc_self_link
 
   depends_on = [
     google_project_service.apigee,
