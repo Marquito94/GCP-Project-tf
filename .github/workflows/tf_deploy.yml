@@ -50,16 +50,38 @@ jobs:
       - name: Terraform Plan
         working-directory: infra
         run: |
-          terraform plan \
-            -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
-            -var="bucket_name=${BUCKET_NAME}" \
-            -var="domain=${{ secrets.GCP_DOMAIN }}"
+          # 1) Org + peering first
+          terraform apply -target=google_service_networking_connection.vpc_connection \
+                          -target=google_apigee_organization.org \
+                          -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
+                          -var="bucket_name=${BUCKET_NAME}" \
+                          -var="domain=${{ secrets.GCP_DOMAIN }}"
+                          
+          # 2) Runtime, env, attachment
+          terraform apply -target=google_apigee_instance.instance \
+                          -target=google_apigee_environment.env \
+                          -target=google_apigee_instance_attachment.instance_env \
+                          -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
+                          -var="bucket_name=${BUCKET_NAME}" \
+                          -var="domain=${{ secrets.GCP_DOMAIN }}"
+                          
+          # 3) Envgroup and its attachment
+          terraform apply -target=google_apigee_envgroup.eg \
+                          -target=google_apigee_envgroup_attachment.eg_attach  \
+                          -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
+                          -var="bucket_name=${BUCKET_NAME}" \
+                          -var="domain=${{ secrets.GCP_DOMAIN }}"
+                          
+        #  terraform plan \
+        #    -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
+        #    -var="bucket_name=${BUCKET_NAME}" \
+        #    -var="domain=${{ secrets.GCP_DOMAIN }}"
             
-      - name: Terraform Apply
-        working-directory: infra
-        if: ${{ github.event.inputs.apply == 'true' }}
-        run: | 
-          terraform apply -auto-approve \
-            -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
-            -var="bucket_name=${BUCKET_NAME}" \
-            -var="domain=${{ secrets.GCP_DOMAIN }}"
+      #- name: Terraform Apply
+      #  working-directory: infra
+      #  if: ${{ github.event.inputs.apply == 'true' }}
+      #  run: | 
+      #    terraform apply -auto-approve \
+      #      -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
+      #      -var="bucket_name=${BUCKET_NAME}" \
+      #      -var="domain=${{ secrets.GCP_DOMAIN }}"
