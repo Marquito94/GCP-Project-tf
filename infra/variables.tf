@@ -157,4 +157,5 @@ variable "proxy_only_cidr" {
 variable "existing_url_map" {
   type        = string
   description = "NAME of the existing global URL map to update (e.g., frontend-urlmap)"
+  default     = "frontend-url-map"
 }
