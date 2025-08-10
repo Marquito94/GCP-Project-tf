@@ -1,9 +1,12 @@
-resource "google_compute_network_endpoint_group" "apigee_ingress_psc_neg" {
+# Use google-beta here if your google provider is older
+resource "google_compute_region_network_endpoint_group" "apigee_ingress_psc_neg" {
   provider              = google-beta
   name                  = "apigee-ingress-psc-neg"
-  network_endpoint_type = "PRIVATE_SERVICE_CONNECT"
-  zone                  = var.zone
+  region                = var.region
   network               = var.vpc_self_link
+  subnetwork            = data.google_compute_subnetwork.consumer_subnet.self_link
+  network_endpoint_type = "PRIVATE_SERVICE_CONNECT"
+
   psc_target_service    = var.apigee_service_attachment_uri
 }
 
@@ -17,7 +20,7 @@ resource "google_compute_backend_service" "apigee_ingress_bs" {
   log_config { enable = true }
 
   backend {
-    group = google_compute_network_endpoint_group.apigee_ingress_psc_neg.id
+    group = google_compute_region_network_endpoint_group.apigee_ingress_psc_neg.id
   }
 }
 
