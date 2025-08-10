@@ -17,3 +17,8 @@ output "https_url" {
   value       = "https://${var.domain}"
   description = "Site URL via HTTPS Load Balancer (after DNS + cert ACTIVE)"
 }
+
+output "apigee_envgroup_host" {
+  value       = var.apigee_host
+  description = "Public hostname your frontend should call (points to Env Group LB)."
+}
