@@ -82,7 +82,7 @@ variable "vpc_self_link" {
 variable "private_dns_name" {
   type        = string
   description = "Private zone DNS name (with trailing dot)"
-  default     = "internal.apipueba-web-dev.com."
+  default     = "internal.apipueba-web-dev.com"
 }
 
 variable "private_zone_name" {
@@ -113,6 +113,17 @@ variable "apigee_host" {
   type        = string
   description = "Public hostname to serve APIs from (env group host)"
   default     = "apipueba-web-dev.com"
+}
+
+variable "ilb_subnet_name" {
+  type        = string
+  description = "Subnet name in var.region for the ILB IP (e.g., default)"
+  default     = "default"
+}
+
+variable "ilb_ip_name" {
+  type    = string
+  default = "api-ilbv2-ip"
 }
 
 variable "proxy_only_cidr" {
