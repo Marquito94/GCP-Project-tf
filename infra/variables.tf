@@ -153,3 +153,8 @@ variable "proxy_only_cidr" {
   description = "UNUSED /23 or /24 for the ILB proxy-only subnet"
   default     = "172.20.0.0/23"
 }
+
+variable "existing_url_map" {
+  type        = string
+  description = "NAME of the existing global URL map to update (e.g., frontend-urlmap)"
+}
