@@ -24,14 +24,20 @@ resource "google_dns_record_set" "backend_a" {
 
   type = "A"
   ttl  = 300
-  rrdatas = [
-    "10.0.12.34",  # <-- replace with your ILB_IP
-  ]
+  rrdatas      = [google_compute_address.ilb_ip.address]
 }
 
 data "google_compute_network" "vpc" {
   project = var.project_id
   name    = var.vpc_name
+}
+
+resource "google_compute_address" "ilb_ip" {
+  name         = var.ilb_ip_name
+  region       = var.region
+  address_type = "INTERNAL"
+  purpose      = "GCE_ENDPOINT"
+  subnetwork   = data.google_compute_subnetwork.ilb_subnet.self_link
 }
 
 resource "google_compute_subnetwork" "ilb_proxy_only" {
@@ -44,3 +50,4 @@ resource "google_compute_subnetwork" "ilb_proxy_only" {
   purpose = "REGIONAL_MANAGED_PROXY"
   role    = "ACTIVE"
 }
+
