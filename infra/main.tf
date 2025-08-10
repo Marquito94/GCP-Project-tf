@@ -1,12 +1,3 @@
-locals {
-  object_viewers = [
-    # Cloud CDN cache-fill SA
-    "serviceAccount:service-${data.google_project.current.number}@cloud-cdn-fill.iam.gserviceaccount.com",
-    "serviceAccount:service-${data.google_project.current.number}@gcp-sa-backend-bucket.iam.gserviceaccount.com",
-    "serviceAccount:service-${data.google_project.current.number}@compute-system.iam.gserviceaccount.com",
-  ]
-}
-
 ############################################
 # Project info
 ############################################
@@ -31,7 +22,6 @@ resource "google_storage_bucket" "site" {
   location                    = var.location
   uniform_bucket_level_access = true
   force_destroy               = true
-  public_access_prevention     = "enforced"
 
   website {
     main_page_suffix = var.main_page
@@ -67,11 +57,15 @@ resource "google_storage_bucket_iam_binding" "sa_object_admin" {
   members = ["serviceAccount:${google_service_account.deployer.email}"]
 }
 
-resource "google_storage_bucket_iam_binding" "object_viewer" {
+# LB’s Google-managed SA can read objects
+resource "google_storage_bucket_iam_binding" "lb_object_viewer" {
   bucket  = google_storage_bucket.site.name
   role    = "roles/storage.objectViewer"
-  members = local.object_viewers
+  members = [
+    "serviceAccount:service-${data.google_project.current.number}@compute-system.iam.gserviceaccount.com"
+  ]
 }
+
 ############################################
 # Global Load Balancer (bucket backend)
 ############################################
