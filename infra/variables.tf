@@ -159,3 +159,9 @@ variable "existing_url_map" {
   description = "NAME of the existing global URL map to update (e.g., frontend-urlmap)"
   default     = "frontend-url-map"
 }
+
+variable "apigee_service_attachment_uri" {
+  type        = string
+  description = "Apigee instance serviceAttachment (projects/<TENANT>/regions/<REGION>/serviceAttachments/<NAME>)"
+  default     = "projects/tc058119f8e4d3dfap-tp/regions/us-central1/serviceAttachments/apigee-us-central1-ea02"
+}
