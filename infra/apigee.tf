@@ -32,7 +32,9 @@ resource "google_compute_global_address" "service_range2" {
 resource "google_service_networking_connection" "vpc_connection" {
   network                 = data.google_compute_network.vpc.self_link
   service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.service_range.name]
+  reserved_peering_ranges = [
+    google_compute_global_address.service_range2.name
+  ]
 
   depends_on = [
     google_project_service.servicenetworking,
