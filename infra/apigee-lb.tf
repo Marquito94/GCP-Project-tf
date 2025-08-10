@@ -2,7 +2,8 @@
 # Data sources: VPC + Subnet for PSC NEG
 #############################################
 data "google_compute_network" "lb_vpc" {
-  self_link = var.vpc_self_link
+  name    = var.vpc_name          # e.g. "default"
+  project = var.project_id
 }
 
 data "google_compute_subnetwork" "lb_subnet" {
