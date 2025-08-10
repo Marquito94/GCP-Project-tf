@@ -103,16 +103,37 @@ variable "apigee_env_name" {
   default     = "dev"
 }
 
+variable "apigee_cidr" {
+  type        = string
+  default     = "10.90.0.0/22"
+}
+
 variable "apigee_envgroup_name" {
   type        = string
   description = "Apigee environment group name"
   default     = "public-eg"
 }
 
+variable "consumer_subnet_name" {
+  type        = string
+  default     = "default"
+  description = "Not used for Apigee; kept for future if you also want a PSC endpoint in your VPC"
+}
+
 variable "apigee_host" {
   type        = string
-  description = "Public hostname to serve APIs from (env group host)"
-  default     = "apipueba-web-dev.com"
+  default     = "api.pueba-web-dev.com"
+  description = "Public hostname (env group host) that clients hit"
+}
+
+variable "psc_nat_subnet_cidr" {
+  type        = string
+  default     = "172.21.0.0/24"
+}
+
+variable "producer_forwarding_rule" {
+  type        = string
+  description = "Self link of the INTERNAL_MANAGED Forwarding Rule created by GKE internal Ingress"
 }
 
 variable "ilb_subnet_name" {
