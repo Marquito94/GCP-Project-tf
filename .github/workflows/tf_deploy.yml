@@ -51,26 +51,29 @@ jobs:
         working-directory: infra
         run: |
           # 1) Org + peering first
-          yes | terraform apply -target=google_service_networking_connection.vpc_connection \
+          terraform apply -target=google_service_networking_connection.vpc_connection \
                           -target=google_apigee_organization.org \
                           -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
                           -var="bucket_name=${BUCKET_NAME}" \
-                          -var="domain=${{ secrets.GCP_DOMAIN }}"
+                          -var="domain=${{ secrets.GCP_DOMAIN }}" \
+                          -auto-approve
                           
           # 2) Runtime, env, attachment
-          yes | terraform apply -target=google_apigee_instance.instance \
+          terraform apply -target=google_apigee_instance.instance \
                           -target=google_apigee_environment.env \
                           -target=google_apigee_instance_attachment.instance_env \
                           -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
                           -var="bucket_name=${BUCKET_NAME}" \
-                          -var="domain=${{ secrets.GCP_DOMAIN }}"
+                          -var="domain=${{ secrets.GCP_DOMAIN }}" \
+                          -auto-approve
                           
           # 3) Envgroup and its attachment
-          yes | terraform apply -target=google_apigee_envgroup.eg \
+          terraform apply -target=google_apigee_envgroup.eg \
                           -target=google_apigee_envgroup_attachment.eg_attach  \
                           -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
                           -var="bucket_name=${BUCKET_NAME}" \
-                          -var="domain=${{ secrets.GCP_DOMAIN }}"
+                          -var="domain=${{ secrets.GCP_DOMAIN }}" \
+                          -auto-approve
                           
         #  terraform plan \
         #    -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
