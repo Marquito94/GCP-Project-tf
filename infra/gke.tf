@@ -55,7 +55,7 @@ resource "google_container_node_pool" "primary_pool" {
       "disable-legacy-endpoints" = "true"
     }
     workload_metadata_config {
-      mode = "GKE_METADATA"
+      mode = "GCE_METADATA"
     }
     shielded_instance_config {
       enable_secure_boot          = true
