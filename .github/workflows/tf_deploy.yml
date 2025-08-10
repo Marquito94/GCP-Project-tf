@@ -53,8 +53,7 @@ jobs:
           terraform plan \
             -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
             -var="bucket_name=${BUCKET_NAME}" \
-            -var="domain=${{ secrets.GCP_DOMAIN }}" \
-            -auto-approve
+            -var="domain=${{ secrets.GCP_DOMAIN }}"
             
       - name: Terraform Apply
         working-directory: infra
