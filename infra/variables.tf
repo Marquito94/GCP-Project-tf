@@ -61,7 +61,3 @@ variable "node_machine_type" {
   default     = "e2-standard-4"
 }
 
-variable "deploy_sa_email" {
-  type        = string
-  description = "Existing deploy Service Account email (for pushing images)"
-}
