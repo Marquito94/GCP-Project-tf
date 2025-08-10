@@ -66,7 +66,7 @@ resource "google_storage_bucket_iam_binding" "lb_object_viewer" {
 # Global Load Balancer (bucket backend)
 ############################################
 
-# Origin: the private bucket (CDN optional)
+# Backend bucket (origin = private GCS bucket)
 resource "google_compute_backend_bucket" "frontend" {
   name        = "frontend-backend-bucket"
   bucket_name = google_storage_bucket.site.name
@@ -80,32 +80,31 @@ resource "google_compute_managed_ssl_certificate" "cert" {
   managed { domains = [var.domain] }
 }
 
-# URL map for serving the site (used by HTTPS; HTTP redirects to HTTPS)
-# Includes rewrites so clean paths work.
+# URL map used by HTTPS to serve the site
+# Includes redirects so clean paths resolve to actual files.
 resource "google_compute_url_map" "https_map" {
-  name = "frontend-url-map"
+  name            = "frontend-url-map"
+  # REQUIRED top-level default
+  default_service = google_compute_backend_bucket.frontend.id
 
-  # host rules
+  # Host rule → path matcher
   host_rule {
     hosts        = ["*"]
-    path_matcher = "pm-main"
+    path_matcher = "frontend-paths"
   }
 
-  # path matcher with path rules and redirects
+  # Path matcher with file redirects
   path_matcher {
-    name = "pm-main"
-
-    # default goes to the backend bucket (normal files like /index.html etc.)
-    default_service = google_compute_backend_bucket.frontend.id
+    name = "frontend-paths"
 
     # "/" -> "/index.html"
     path_rule {
       paths = ["/"]
       url_redirect {
-        https_redirect          = false
-        path_redirect           = "/index.html"
-        strip_query             = false
-        redirect_response_code  = "MOVED_PERMANENTLY_DEFAULT"
+        https_redirect         = false
+        path_redirect          = "/index.html"
+        strip_query            = false
+        redirect_response_code = "MOVED_PERMANENTLY_DEFAULT"
       }
     }
 
@@ -113,10 +112,10 @@ resource "google_compute_url_map" "https_map" {
     path_rule {
       paths = ["/solutions"]
       url_redirect {
-        https_redirect          = false
-        path_redirect           = "/solutions/index.html"
-        strip_query             = false
-        redirect_response_code  = "MOVED_PERMANENTLY_DEFAULT"
+        https_redirect         = false
+        path_redirect          = "/solutions/index.html"
+        strip_query            = false
+        redirect_response_code = "MOVED_PERMANENTLY_DEFAULT"
       }
     }
 
@@ -124,10 +123,10 @@ resource "google_compute_url_map" "https_map" {
     path_rule {
       paths = ["/delivery"]
       url_redirect {
-        https_redirect          = false
-        path_redirect           = "/delivery/index.html"
-        strip_query             = false
-        redirect_response_code  = "MOVED_PERMANENTLY_DEFAULT"
+        https_redirect         = false
+        path_redirect          = "/delivery/index.html"
+        strip_query            = false
+        redirect_response_code = "MOVED_PERMANENTLY_DEFAULT"
       }
     }
 
@@ -135,10 +134,10 @@ resource "google_compute_url_map" "https_map" {
     path_rule {
       paths = ["/status"]
       url_redirect {
-        https_redirect          = false
-        path_redirect           = "/status/index.html"
-        strip_query             = false
-        redirect_response_code  = "MOVED_PERMANENTLY_DEFAULT"
+        https_redirect         = false
+        path_redirect          = "/status/index.html"
+        strip_query            = false
+        redirect_response_code = "MOVED_PERMANENTLY_DEFAULT"
       }
     }
   }
