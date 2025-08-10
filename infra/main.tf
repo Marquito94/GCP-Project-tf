@@ -84,18 +84,18 @@ resource "google_compute_managed_ssl_certificate" "cert" {
 # Includes redirects so clean paths resolve to actual files.
 resource "google_compute_url_map" "https_map" {
   name            = "frontend-url-map"
-  # REQUIRED top-level default
+  # Top-level default (kept)
   default_service = google_compute_backend_bucket.frontend.id
 
-  # Host rule → path matcher
   host_rule {
     hosts        = ["*"]
     path_matcher = "frontend-paths"
   }
 
-  # Path matcher with file redirects
   path_matcher {
-    name = "frontend-paths"
+    name             = "frontend-paths"
+    # REQUIRED inside the matcher
+    default_service  = google_compute_backend_bucket.frontend.id
 
     # "/" -> "/index.html"
     path_rule {
