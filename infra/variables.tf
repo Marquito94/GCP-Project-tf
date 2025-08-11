@@ -82,7 +82,7 @@ variable "vpc_self_link" {
 variable "private_dns_name" {
   type        = string
   description = "Private zone DNS name (with trailing dot)"
-  default     = "internal.apipueba-web-dev.com."
+  default     = "api.pueba-web-dev.com."
 }
 
 variable "private_zone_name" {
