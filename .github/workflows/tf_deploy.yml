@@ -50,7 +50,7 @@ jobs:
       - name: Terraform Plan
         working-directory: infra
         run: |
-          terraform plan \
+          terraform plan -destroy \
             -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
             -var="bucket_name=${BUCKET_NAME}" \
             -var="domain=${{ secrets.GCP_DOMAIN }}"
@@ -59,7 +59,7 @@ jobs:
         working-directory: infra
         if: ${{ github.event.inputs.apply == 'true' }}
         run: | 
-          terraform apply -auto-approve \
+          terraform destroy -auto-approve \
             -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
             -var="bucket_name=${BUCKET_NAME}" \
             -var="domain=${{ secrets.GCP_DOMAIN }}" \
